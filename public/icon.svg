@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Musical Note (Beamed Eighth Notes) -->
+  <path d="M33,70 L33,25 L73,15 L73,60" fill="none" stroke="black" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="25" cy="70" rx="12" ry="10" transform="rotate(-20 25 70)" fill="black" />
+  <ellipse cx="65" cy="60" rx="12" ry="10" transform="rotate(-20 65 60)" fill="black" />
+  <path d="M33,25 L73,15 L73,25 L33,35 Z" fill="black" />
+
+  <!-- Forbidden Sign -->
+  <circle cx="50" cy="50" r="40" stroke="#E53935" stroke-width="10" fill="none" />
+  <line x1="22" y1="22" x2="78" y2="78" stroke="#E53935" stroke-width="10" stroke-linecap="round" />
+</svg>

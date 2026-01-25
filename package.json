@@ -1,0 +1,45 @@
+{
+  "name": "ytm-noslop",
+  "description": "Block AI slop artists, songs or keywords on YouTube Music.",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "icons": "./scripts/generate-icons.sh",
+    "dev:chrome": "wxt -b chrome",
+    "dev:firefox": "wxt -b firefox",
+    "build:chrome": "wxt build -b chrome",
+    "build:firefox": "wxt build -b firefox",
+    "zip:chrome": "wxt zip -b chrome",
+    "zip:firefox": "wxt zip -b firefox",
+    "sign:firefox": "yarn build:firefox && web-ext sign --channel=unlisted --source-dir .output/firefox-mv2",
+    "compile": "tsc --noEmit",
+    "postinstall": "wxt prepare && yarn icons",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.10"
+  },
+  "devDependencies": {
+    "@wxt-dev/module-solid": "^1.1.4",
+    "eslint": "^9.39.2",
+    "eslint-plugin-solid": "^0.14.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.1",
+    "sass": "^1.97.3",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.53.1",
+    "web-ext": "^9.2.0",
+    "wxt": "^0.20.6"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,html,css,scss}": [
+      "prettier --write"
+    ]
+  }
+}
