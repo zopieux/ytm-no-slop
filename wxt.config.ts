@@ -19,6 +19,9 @@ export default defineConfig({
     browser_specific_settings: {
       gecko: {
         id: 'ytm-no-slop@zopieux.com',
+        data_collection_permissions: {
+          required: ['none'],
+        },
       },
     },
   },
