@@ -18,7 +18,14 @@
             yarn
             inkscape
             jq
+            chromium
+            ffmpeg
           ];
+
+          shellHook = ''
+            export PUPPETEER_EXECUTABLE_PATH="${pkgs.chromium}/bin/chromium"
+            export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+          '';
         };
       });
     };

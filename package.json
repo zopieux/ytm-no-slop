@@ -15,6 +15,7 @@
     "sign:firefox": "yarn build:firefox && web-ext sign --channel=unlisted --source-dir .output/firefox-mv2",
     "compile": "tsc --noEmit",
     "postinstall": "wxt prepare && yarn icons",
+    "screenshots": "node scripts/generate-screenshots.js",
     "prepare": "husky"
   },
   "dependencies": {
@@ -27,9 +28,12 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
+    "puppeteer": "^24.36.0",
     "sass": "^1.97.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.53.1",
+    "vite": "^7.3.1",
+    "vite-plugin-solid": "^2.11.10",
     "web-ext": "^9.2.0",
     "wxt": "^0.20.6"
   },
