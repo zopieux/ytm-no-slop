@@ -1,6 +1,6 @@
 import { TabType } from './constants';
 
-export interface BlockedItem {
+export interface BlockedSong {
   title: string;
   artist: string;
 }
@@ -10,12 +10,24 @@ export interface BlockedArtist {
   name: string;
 }
 
-export type BlockList = (string | BlockedItem | BlockedArtist)[];
+export interface TabsProps {
+  currentTab: TabType;
+  onTabChange: (_tab: TabType) => void;
+}
+
+export interface HistoryItem {
+  title: string;
+  artist: string;
+  timestamp: number;
+  reason: string;
+}
+
+export type BlockList = (string | BlockedSong | BlockedArtist | HistoryItem)[];
 
 export enum MessageType {
   CHECK_SONG = 'CHECK_SONG',
   BLOCK_ARTIST = 'BLOCK_ARTIST',
-  BLOCK_TRACK = 'BLOCK_TRACK',
+  BLOCK_SONG = 'BLOCK_SONG',
   ADD_ITEM = 'ADD_ITEM',
   REMOVE_ITEM = 'REMOVE_ITEM',
   REFRESH_AI_DB = 'REFRESH_AI_DB',
@@ -39,8 +51,8 @@ export interface BlockArtistRequest {
   artistName: string;
 }
 
-export interface BlockTrackRequest {
-  type: MessageType.BLOCK_TRACK;
+export interface BlockSongRequest {
+  type: MessageType.BLOCK_SONG;
   title: string;
   artistName: string;
 }
@@ -48,23 +60,23 @@ export interface BlockTrackRequest {
 export interface AddItemRequest {
   type: MessageType.ADD_ITEM;
   list: TabType;
-  payload: string | BlockedItem | BlockedArtist;
+  payload: string | BlockedSong | BlockedArtist;
 }
 
 export interface RemoveItemRequest {
   type: MessageType.REMOVE_ITEM;
   list: TabType;
-  payload: string | BlockedItem | BlockedArtist;
+  payload: string | BlockedSong | BlockedArtist;
 }
 
 export interface RefreshAiDbRequest {
   type: MessageType.REFRESH_AI_DB;
 }
 
-export type Message = 
-  | CheckSongRequest 
-  | BlockArtistRequest 
-  | BlockTrackRequest
+export type Message =
+  | CheckSongRequest
+  | BlockArtistRequest
+  | BlockSongRequest
   | AddItemRequest
   | RemoveItemRequest
   | RefreshAiDbRequest;

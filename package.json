@@ -2,7 +2,7 @@
   "name": "ytm-noslop",
   "description": "Block AI slop artists, songs or keywords on YouTube Music.",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "icons": "./scripts/generate-icons.sh",

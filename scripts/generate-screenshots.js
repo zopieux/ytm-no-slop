@@ -17,7 +17,6 @@ const viteProcess = spawn(
   ['vite', 'serve', 'scripts/screenshots', '--config', 'scripts/screenshots/vite.config.ts'],
   {
     stdio: 'pipe',
-    shell: true,
   },
 );
 
@@ -73,12 +72,13 @@ async function run() {
   }
 
   const themes = ['light', 'dark'];
-  const tabs = ['keywords', 'songs', 'artists', 'aidb'];
+  const tabs = ['keywords', 'songs', 'artists', 'aidb', 'history'];
   const tabSelectors = {
     keywords: '.tabs .tab-btn:nth-child(1)',
     songs: '.tabs .tab-btn:nth-child(2)',
     artists: '.tabs .tab-btn:nth-child(3)',
     aidb: '.tabs .tab-btn:nth-child(4)',
+    history: '.tabs .tab-btn:nth-child(5)',
   };
 
   for (const theme of themes) {

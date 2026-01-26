@@ -4,7 +4,10 @@ import {
   STORAGE_KEY_SONGS,
   STORAGE_KEY_AI_DB,
   STORAGE_KEY_AUTO_SKIP,
+  STORAGE_KEY_HISTORY,
 } from '@/utils/constants';
+
+const now = Date.now();
 
 const mockData = {
   [STORAGE_KEY_KEYWORDS]: ['slowed reverb', 'nightcore', 'AI cover', 'tiktok remix'],
@@ -12,6 +15,11 @@ const mockData = {
   [STORAGE_KEY_SONGS]: [],
   [STORAGE_KEY_AI_DB]: Array.from({ length: 960 }, (_, i) => ({ name: `A${i}` })),
   [STORAGE_KEY_AUTO_SKIP]: true,
+  [STORAGE_KEY_HISTORY]: [
+    { title: 'Heart on My Sleeve', artist: 'Ghostwriter', timestamp: now - 5000, reason: '' },
+    { title: "Winter's Cold", artist: 'Drake AI', timestamp: now - 180000, reason: '' },
+    { title: 'Heart on My Sleeve', artist: 'Ghostwriter', timestamp: now - 3600000, reason: '' },
+  ],
 };
 
 const listeners = new Map();
@@ -26,7 +34,7 @@ const listeners = new Map();
       listeners.get(key)(value);
     }
   },
-  watch: (key: string, callback: Function) => {
+  watch: (key: string, callback: (value: any) => void) => {
     listeners.set(key, callback);
     return () => listeners.delete(key);
   },

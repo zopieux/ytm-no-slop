@@ -2,63 +2,45 @@ $content-height: 295px
 $standard-gap: 12px
 
 :root
-  --bg: #1a1a1a
-  --text: #fff
-  --primary: #ff4444
-  --secondary: #888
-  --muted: #666
+  --bg-canvas: #1a1a1a
+  --bg-surface: #222
+  --bg-element: #333
+  --bg-element-hover: #444
+  
   --border: #333
-  --input-bg: #2a2a2a
-  --input-border: #444
-  --button-bg: #444
-  --button-text: #fff
-  --tab-inactive-bg: #333
-  --tab-inactive-text: #aaa
-  --tab-hover-bg: #444
-  --list-bg: #222
-  --list-border: #333
-  --link-color: #fff
-  --link-underline: #666
-  --action-bg: #333
-  --action-text: #ccc
-  --action-hover-bg: #444
-  --switch-bg: #333
-  --ai-label: #aaa
-  --ai-sources: #555
-  --ai-source-links: #888
+  
+  --text-main: #fff
+  --text-muted: #aaa
+  --text-faint: #666
+  
+  --primary: #ff4444
+
+  --font-sm: 11px
+  --font-md: 12px
+  --font-base: 13px
+  --font-lg: 16px
+  --font-display: 48px
 
 @media (prefers-color-scheme: light)
   :root
-    --bg: #f9f9f9
-    --text: #1a1a1a
-    --primary: #ff4444
-    --secondary: #666
-    --muted: #999
+    --bg-canvas: #f9f9f9
+    --bg-surface: #fff
+    --bg-element: #eee
+    --bg-element-hover: #e0e0e0
+    
     --border: #ddd
-    --input-bg: #fff
-    --input-border: #ccc
-    --button-bg: #eee
-    --button-text: #1a1a1a
-    --tab-inactive-bg: #eee
-    --tab-inactive-text: #666
-    --tab-hover-bg: #e0e0e0
-    --list-bg: #fff
-    --list-border: #eee
-    --link-color: #1a1a1a
-    --link-underline: #999
-    --action-bg: #eee
-    --action-text: #444
-    --action-hover-bg: #e0e0e0
-    --switch-bg: #ccc
-    --ai-label: #555
-    --ai-sources: #999
-    --ai-source-links: #666
+    
+    --text-main: #1a1a1a
+    --text-muted: #666
+    --text-faint: #999
+    
+    --primary: #ff4444
 
 body
   width: 340px
   font-family: 'Segoe UI', sans-serif
-  background: var(--bg)
-  color: var(--text)
+  background: var(--bg-canvas)
+  color: var(--text-main)
   padding: $standard-gap
   margin: 0
 
@@ -74,14 +56,14 @@ body
   gap: 8px
 
   .auto-skip-label
-    font-size: 10px
-    color: var(--secondary)
+    font-size: var(--font-sm)
+    color: var(--text-muted)
     text-transform: uppercase
     letter-spacing: 0.5px
 
 h2
   margin: 0
-  font-size: 16px
+  font-size: var(--font-lg)
   color: var(--primary)
   text-transform: uppercase
   letter-spacing: 1px
@@ -90,8 +72,8 @@ h2
   gap: 8px
 
   .version-tag
-    font-size: 10px
-    color: var(--muted)
+    font-size: var(--font-sm)
+    color: var(--text-faint)
     text-transform: none
     letter-spacing: normal
     font-weight: normal
@@ -105,17 +87,17 @@ h2
   .tab-btn
     flex: 1
     padding: 8px
-    background: var(--tab-inactive-bg)
+    background: var(--bg-element)
     border: none
-    color: var(--tab-inactive-text)
+    color: var(--text-muted)
     cursor: pointer
-    font-size: 12px
+    font-size: var(--font-md)
     border-radius: 4px
     transition: 0.2s
 
     &:hover
-      background: var(--tab-hover-bg)
-      color: var(--text)
+      background: var(--bg-element-hover)
+      color: var(--text-main)
 
     &.active
       background: var(--primary)
@@ -137,9 +119,9 @@ h2
   input
     flex: 1
     padding: 8px
-    background: var(--input-bg)
-    border: 1px solid var(--input-border)
-    color: var(--text)
+    background: var(--bg-surface)
+    border: 1px solid var(--border)
+    color: var(--text-main)
     border-radius: 4px
     outline: none
 
@@ -148,9 +130,9 @@ h2
 
   button#add
     padding: 8px 15px
-    background: var(--button-bg)
+    background: var(--bg-element-hover)
     border: none
-    color: var(--button-text)
+    color: var(--text-main)
     cursor: pointer
     border-radius: 4px
     font-weight: bold
@@ -164,20 +146,19 @@ ul#list
   list-style: none
   padding: 0
   margin: 0
-  // height: 250px -- Replaced by flex in parent
   flex: 1
   min-height: 0
   overflow-y: auto
-  border: 1px solid var(--list-border)
+  border: 1px solid var(--border)
   border-radius: 4px
-  background: var(--list-bg)
+  background: var(--bg-surface)
 
   li
     display: flex
     justify-content: space-between
     padding: 8px 10px
-    border-bottom: 1px solid var(--list-border)
-    font-size: 13px
+    border-bottom: 1px solid var(--border)
+    font-size: var(--font-base)
     align-items: center
 
     &:last-child
@@ -200,7 +181,7 @@ ul#list
     .delete-btn
       background: none
       border: none
-      color: var(--muted)
+      color: var(--text-faint)
       cursor: pointer
       display: flex
       align-items: center
@@ -216,14 +197,14 @@ ul#list
 
     &.loading
       justify-content: center
-      color: var(--secondary)
+      color: var(--text-muted)
 
     &.empty
       flex-direction: column
       justify-content: center
       align-items: center
       height: 100%
-      color: var(--secondary)
+      color: var(--text-muted)
       gap: 12px
       border-bottom: none
       padding: 0
@@ -234,7 +215,7 @@ ul#list
         height: 80px
 
     .artist-link
-      color: var(--text)
+      color: var(--text-main)
       text-decoration: none
       border-bottom: none
       max-width: 260px
@@ -251,24 +232,24 @@ ul#list
   align-items: center
   justify-content: center
   padding: 6px
-  background: var(--action-bg)
+  background: var(--bg-element)
   border: none
-  color: var(--action-text)
-  font-size: 11px
+  color: var(--text-muted)
+  font-size: var(--font-sm)
   cursor: pointer
   border-radius: 4px
   transition: 0.2s
   text-decoration: none
 
   &:hover
-    background: var(--action-hover-bg)
-    color: var(--text)
+    background: var(--bg-element-hover)
+    color: var(--text-main)
 
   &:disabled
     opacity: 0.5
     cursor: not-allowed
-    background: var(--input-bg)
-    color: var(--muted)
+    background: var(--bg-surface)
+    color: var(--text-faint)
     pointer-events: none
 
 /* Actions Footer */
@@ -294,15 +275,15 @@ ul#list
   border-bottom: none
 
   .count
-    font-size: 48px
+    font-size: var(--font-display)
     font-weight: 800
     color: var(--primary)
     line-height: 1
 
   .label
-    font-size: 12px
+    font-size: var(--font-md)
     font-weight: bold
-    color: var(--ai-label)
+    color: var(--text-muted)
     margin-top: 5px
     text-transform: uppercase
     letter-spacing: 1px
@@ -312,12 +293,12 @@ ul#list
     padding: 8px 16px
 
   .source-links
-    font-size: 10px
-    color: var(--ai-sources)
+    font-size: var(--font-sm)
+    color: var(--text-faint)
     margin-top: 5px
 
     a
-      color: var(--ai-source-links)
+      color: var(--text-muted)
       text-decoration: none
       &:hover
         text-decoration: underline
@@ -341,7 +322,7 @@ ul#list
   left: 0
   right: 0
   bottom: 0
-  background-color: var(--switch-bg)
+  background-color: var(--bg-element)
   transition: .3s
   border-radius: 20px
 
@@ -361,3 +342,48 @@ input:checked + .slider
 
 input:checked + .slider:before
   transform: translateX(14px)
+
+/* History */
+.history-list
+  display: flex !important
+  flex-direction: column !important
+
+  .history-table
+    display: flex
+    flex-direction: column
+    width: 100%
+
+    .history-row
+      display: flex
+      align-items: center
+      padding: 8px 10px
+      border-bottom: 1px solid var(--border)
+      font-size: var(--font-base)
+      gap: 10px
+
+      &:last-child
+        border-bottom: none
+
+      .col-when
+        flex: 0 0 50px
+        font-size: var(--font-sm)
+        color: var(--text-muted)
+        text-align: right
+
+      .col-title
+        flex: 1
+        min-width: 0
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
+
+        .artist-dim
+          color: var(--text-faint)
+          font-size: var(--font-md)
+
+      .col-times
+        flex: 0 0 25px
+        text-align: right
+        font-size: var(--font-sm)
+        font-weight: bold
+        color: var(--text-muted)

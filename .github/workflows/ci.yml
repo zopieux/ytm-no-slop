@@ -14,6 +14,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15
         with:
@@ -43,8 +45,31 @@ jobs:
           path: .output/firefox-mv2/
           include-hidden-files: true
 
+      - name: Generate changelog
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          # Try to find the previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          echo "Previous tag identified: '$PREV_TAG'"
+
+          if [ -z "$PREV_TAG" ]; then
+            # If no previous tag, look at all history up to HEAD
+            RANGE="HEAD"
+          else
+            RANGE="$PREV_TAG..HEAD"
+          fi
+          
+          echo "## Changes" > release_body.md
+          echo "" >> release_body.md
+          
+          # Extract lines starting with CL:, strip the prefix and turn into list items
+          git log --format=%B "$RANGE" | grep "^CL:" | sed 's/^CL: */- /' >> release_body.md || true
+          
+          cat release_body.md
+
       - name: Create release
         uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           files: .output/*.zip
+          body_path: release_body.md

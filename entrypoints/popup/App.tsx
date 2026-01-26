@@ -1,11 +1,20 @@
-import { Component, createSignal, createEffect, untrack, on, onMount, onCleanup } from 'solid-js';
+import {
+  Component,
+  createSignal,
+  createEffect,
+  untrack,
+  on,
+  onMount,
+  onCleanup,
+  Show,
+} from 'solid-js';
 import { createStore, unwrap } from 'solid-js/store';
 
 import { Tabs } from './components/Tabs';
 import { ControlPanel } from './components/ControlPanel';
 import { BlockList } from './components/BlockList';
 import {
-  BlockedItem,
+  BlockedSong,
   BlockedArtist,
   AddItemRequest,
   RemoveItemRequest,
@@ -19,13 +28,16 @@ import {
   TAB_SONGS,
   TAB_ARTISTS,
   TAB_AI_DB,
+  TAB_HISTORY,
   STORAGE_KEY_KEYWORDS,
   STORAGE_KEY_SONGS,
   STORAGE_KEY_ARTISTS,
   STORAGE_KEY_AI_DB,
   STORAGE_KEY_AUTO_SKIP,
+  STORAGE_KEY_HISTORY,
   TabType,
 } from '@/utils/constants';
+import { HistoryList } from './components/HistoryList';
 import packageJson from '@/package.json';
 import './style.sass';
 
@@ -33,6 +45,7 @@ const KEYS = {
   [TAB_KEYWORDS]: STORAGE_KEY_KEYWORDS,
   [TAB_SONGS]: STORAGE_KEY_SONGS,
   [TAB_ARTISTS]: STORAGE_KEY_ARTISTS,
+  [TAB_HISTORY]: STORAGE_KEY_HISTORY,
 } as const;
 
 const App: Component = () => {
@@ -42,11 +55,12 @@ const App: Component = () => {
     [TAB_SONGS]: [],
     [TAB_ARTISTS]: [],
     [TAB_AI_DB]: [],
+    [TAB_HISTORY]: [],
   });
   const [isLoading, setIsLoading] = createSignal(false);
   const [autoSkip, setAutoSkip] = createSignal(true);
 
-  const getDisplayText = (item: string | BlockedItem | BlockedArtist) => {
+  const getDisplayText = (item: string | BlockedSong | BlockedArtist) => {
     if (typeof item === 'string') return item;
     if ('title' in item) return `${item.artist || 'Unknown'} - ${item.title}`;
     if ('name' in item) return item.name;
@@ -71,11 +85,16 @@ const App: Component = () => {
       data = (await storage.getItem<BlockListType>(key)) || [];
     }
 
-    const sorted = [...data].sort((a, b) => {
-      const textA = getDisplayText(a).toLowerCase();
-      const textB = getDisplayText(b).toLowerCase();
-      return textA.localeCompare(textB);
-    });
+    const sorted = [...data];
+
+    // History should not be sorted alphabetically, it is already sorted by recency (storage)
+    if (tab !== TAB_HISTORY) {
+      sorted.sort((a, b) => {
+        const textA = getDisplayText(a).toLowerCase();
+        const textB = getDisplayText(b).toLowerCase();
+        return textA.localeCompare(textB);
+      });
+    }
 
     setStore(tab, sorted);
     setIsLoading(false);
@@ -98,9 +117,9 @@ const App: Component = () => {
   const handleAdd = async (val: string) => {
     if (!val) return;
     const tab = currentTab();
-    if (tab === TAB_AI_DB) return;
+    if (tab === TAB_AI_DB || tab === TAB_HISTORY) return;
 
-    let payload: string | BlockedItem | BlockedArtist;
+    let payload: string | BlockedSong | BlockedArtist;
     if (tab === TAB_ARTISTS) {
       payload = { name: val };
     } else if (tab === TAB_SONGS) {
@@ -118,9 +137,9 @@ const App: Component = () => {
     await loadItems();
   };
 
-  const handleDelete = async (itemToRemove: string | BlockedItem | BlockedArtist) => {
+  const handleDelete = async (itemToRemove: string | BlockedSong | BlockedArtist) => {
     const tab = currentTab();
-    if (tab === TAB_AI_DB) return;
+    if (tab === TAB_AI_DB || tab === TAB_HISTORY) return;
 
     const payload = typeof itemToRemove === 'object' ? unwrap(itemToRemove) : itemToRemove;
 
@@ -136,7 +155,7 @@ const App: Component = () => {
   const handleExport = async () => {
     const data = {
       blockedKeywords: (await storage.getItem(STORAGE_KEY_KEYWORDS)) || [],
-      blockedTracks: (await storage.getItem(STORAGE_KEY_SONGS)) || [],
+      blockedSongs: (await storage.getItem(STORAGE_KEY_SONGS)) || [],
       blockedArtists: (await storage.getItem(STORAGE_KEY_ARTISTS)) || [],
     };
 
@@ -165,7 +184,7 @@ const App: Component = () => {
           if (data.blockedKeywords)
             await storage.setItem(STORAGE_KEY_KEYWORDS, data.blockedKeywords);
           if (data.blockedArtists) await storage.setItem(STORAGE_KEY_ARTISTS, data.blockedArtists);
-          if (data.blockedTracks) await storage.setItem(STORAGE_KEY_SONGS, data.blockedTracks);
+          if (data.blockedSongs) await storage.setItem(STORAGE_KEY_SONGS, data.blockedSongs);
 
           loadItems();
         } catch {
@@ -210,6 +229,9 @@ const App: Component = () => {
       storage.watch(STORAGE_KEY_AI_DB, () => {
         if (untrack(currentTab) === TAB_AI_DB) loadItems();
       }),
+      storage.watch(STORAGE_KEY_HISTORY, () => {
+        if (untrack(currentTab) === TAB_HISTORY) loadItems();
+      }),
       storage.watch(STORAGE_KEY_AUTO_SKIP, (newVal) => {
         if (typeof newVal === 'boolean') setAutoSkip(newVal);
       }),
@@ -238,16 +260,24 @@ const App: Component = () => {
       <Tabs currentTab={currentTab()} onTabChange={setCurrentTab} />
 
       <div class="content-wrapper">
-        {currentTab() !== TAB_AI_DB && <ControlPanel currentTab={currentTab()} onAdd={handleAdd} />}
+        {currentTab() !== TAB_AI_DB && currentTab() !== TAB_HISTORY && (
+          <ControlPanel currentTab={currentTab()} onAdd={handleAdd} />
+        )}
 
-        <BlockList
-          items={store[currentTab()]}
-          currentTab={currentTab()}
-          onDelete={handleDelete}
-          isLoading={isLoading()}
-          onReloadAI={handleReloadAI}
-          isReloadDisabled={hasReloaded()}
-        />
+        <Show when={currentTab() === TAB_HISTORY}>
+          <HistoryList items={store[TAB_HISTORY] as any} />
+        </Show>
+
+        <Show when={currentTab() !== TAB_HISTORY}>
+          <BlockList
+            items={store[currentTab()]}
+            currentTab={currentTab()}
+            onDelete={handleDelete}
+            isLoading={isLoading()}
+            onReloadAI={handleReloadAI}
+            isReloadDisabled={hasReloaded()}
+          />
+        </Show>
       </div>
 
       <div class="actions">

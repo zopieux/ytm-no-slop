@@ -3,11 +3,7 @@ import { defineConfig } from 'wxt';
 // See https://wxt.dev/api/config.html
 export default defineConfig({
   modules: ['@wxt-dev/module-solid'],
-  imports: {
-    eslintrc: {
-      enabled: 9,
-    },
-  },
+  imports: { eslintrc: { enabled: 9 } },
   manifest: {
     name: 'YTM No Slop',
     description: 'Block AI slop artists, songs or keywords on YouTube Music.',
