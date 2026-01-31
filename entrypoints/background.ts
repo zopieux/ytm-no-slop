@@ -127,6 +127,19 @@ export default defineBackground(() => {
         await storage.setItem(STORAGE_KEY_AI_DB, toCache);
         await storage.setItem(STORAGE_KEY_AI_DB_TIMESTAMP, Date.now());
         console.log(`Fetched and cached ${toCache.length} artists from AI DB`);
+
+        const localArtists = (await storage.getItem<BlockedArtist[]>(STORAGE_KEY_ARTISTS)) || [];
+        const originalCount = localArtists.length;
+        const newLocalArtists = localArtists.filter((localArtist) => {
+          return !(localArtist.id && remoteIdsSet.has(localArtist.id));
+        });
+
+        if (newLocalArtists.length < originalCount) {
+          const removedCount = originalCount - newLocalArtists.length;
+          await storage.setItem(STORAGE_KEY_ARTISTS, newLocalArtists);
+          console.log(`Removed ${removedCount} local artists which were newly found in the AI DB`);
+        }
+
         updateBlockList();
       } else {
         throw new Error('fetch() returned non-OK response');
