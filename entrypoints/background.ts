@@ -100,7 +100,7 @@ export default defineBackground(() => {
 
         if (Array.isArray(data)) {
           data.forEach((item: { youtube?: string; name?: string }) => {
-            if (item.youtube) {
+            if (item.youtube && item.youtube.startsWith('UC')) {
               remoteIdsSet.add(item.youtube);
               toCache.push({ id: item.youtube, name: item.name || 'Unknown artist name (AI DB)' });
             }

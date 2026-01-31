@@ -34,4 +34,22 @@ export default defineConfig({
     chromiumArgs: ['--user-data-dir=./.wxt/chrome-profile'],
     firefoxArgs: ['-profile', './.wxt/firefox-profile'],
   },
+  zip: {
+    excludeSources: ['**'],
+    includeSources: [
+      'entrypoints/**',
+      'public/**',
+      'scripts/**',
+      'utils/**',
+      'LICENSE',
+      '.gitignore',
+      '.prettierrc',
+      'eslint.config.js',
+      'package.json',
+      'README.md',
+      'tsconfig.json',
+      'wxt.config.ts',
+      'yarn.lock',
+    ],
+  },
 });
