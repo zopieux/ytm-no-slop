@@ -54,22 +54,36 @@ export default defineBackground(() => {
   }
 
   function getIconSet(name: string) {
-    return {
-      '16': `/${name}-16.png`,
-      '32': `/${name}-32.png`,
-      '48': `/${name}-48.png`,
-      '96': `/${name}-96.png`,
-      '128': `/${name}-128.png`,
-    };
+    return [16, 32, 48, 96, 128].reduce(
+      (acc, size) => {
+        acc[size] = `/icon-${name}-${size}.png`;
+        return acc;
+      },
+      {} as Record<number, string>,
+    );
+  }
+
+  async function getTheme(): Promise<'light' | 'dark'> {
+    try {
+      // @ts-expect-error - getBrowserInfo is only available in Firefox
+      const info = await browser.runtime.getBrowserInfo();
+      if (info.name === 'Firefox') {
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          return 'dark';
+        }
+      }
+    } catch {
+      // Fallback or not Firefox
+    }
+    return 'light';
   }
 
   async function updateIcon() {
     const setIcon = browser.action?.setIcon || browser.browserAction?.setIcon;
-    if (setIcon) {
-      await setIcon({
-        path: isAutoSkipEnabled ? getIconSet('icon') : getIconSet('icon-gray'),
-      });
-    }
+    if (!setIcon) return;
+    await setIcon({
+      path: getIconSet(isAutoSkipEnabled ? await getTheme() : 'gray'),
+    });
   }
 
   async function blinkIcon() {
@@ -78,8 +92,11 @@ export default defineBackground(() => {
     const setIcon = browser.action?.setIcon || browser.browserAction?.setIcon;
     if (!setIcon) return;
 
+    const theme = await getTheme();
+    const empty = `empty-${theme}`;
+
     const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-    const sequence = ['icon-empty', 'icon', 'icon-empty', 'icon'];
+    const sequence = [empty, theme, empty, theme];
 
     for (const name of sequence) {
       await setIcon({ path: getIconSet(name) });
@@ -100,7 +117,7 @@ export default defineBackground(() => {
 
         if (Array.isArray(data)) {
           data.forEach((item: { youtube?: string; name?: string }) => {
-            if (item.youtube) {
+            if (item.youtube && item.youtube.startsWith('UC')) {
               remoteIdsSet.add(item.youtube);
               toCache.push({ id: item.youtube, name: item.name || 'Unknown artist name (AI DB)' });
             }
@@ -251,6 +268,12 @@ export default defineBackground(() => {
     const alarm = await browser.alarms.get('update-ai-db');
     if (!alarm) {
       await browser.alarms.create('update-ai-db', { periodInMinutes: 60 });
+    }
+
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        updateIcon();
+      });
     }
   })();
 

@@ -58,11 +58,11 @@ function getSongInfo(): { title: string; artistName: string; artistId: string | 
 }
 
 function injectToastStyles() {
-  if (document.getElementById('ytm-noslop-toast-styles')) return;
+  if (document.getElementById('ytm-no-slop-toast-styles')) return;
   const style = document.createElement('style');
-  style.id = 'ytm-noslop-toast-styles';
+  style.id = 'ytm-no-slop-toast-styles';
   style.textContent = `
-        #ytm-noslop-toast-container {
+        #ytm-no-slop-toast-container {
             position: fixed;
             bottom: 100px;
             right: 20px;
@@ -72,7 +72,7 @@ function injectToastStyles() {
             gap: 10px;
             pointer-events: none;
         }
-        .ytm-noslop-toast {
+        .ytm-no-slop-toast {
             background: #1a1a1a;
             border-left: 4px solid #ff4444;
             color: #fff;
@@ -87,11 +87,11 @@ function injectToastStyles() {
             max-width: 350px;
             pointer-events: auto;
         }
-        .ytm-noslop-toast.show {
+        .ytm-no-slop-toast.show {
             opacity: 1;
             transform: translateX(0);
         }
-        .ytm-noslop-toast-reason {
+        .ytm-no-slop-toast-reason {
             font-size: 12px;
             color: #aaa;
             margin-top: 4px;
@@ -101,15 +101,15 @@ function injectToastStyles() {
 }
 
 function showToast(message: string, reason?: string) {
-  let container = document.getElementById('ytm-noslop-toast-container');
+  let container = document.getElementById('ytm-no-slop-toast-container');
   if (!container) {
     container = document.createElement('div');
-    container.id = 'ytm-noslop-toast-container';
+    container.id = 'ytm-no-slop-toast-container';
     document.body.appendChild(container);
   }
 
   const toast = document.createElement('div');
-  toast.className = 'ytm-noslop-toast';
+  toast.className = 'ytm-no-slop-toast';
 
   const messageEl = document.createElement('div');
   messageEl.textContent = message;
@@ -117,7 +117,7 @@ function showToast(message: string, reason?: string) {
 
   if (reason) {
     const reasonEl = document.createElement('div');
-    reasonEl.className = 'ytm-noslop-toast-reason';
+    reasonEl.className = 'ytm-no-slop-toast-reason';
     reasonEl.textContent = reason;
     toast.appendChild(reasonEl);
   }
@@ -311,7 +311,7 @@ function createButton(text: string, onClick: () => void): HTMLButtonElement {
 }
 
 function injectButtons() {
-  if (document.getElementById('ytm-noslop-controls')) return;
+  if (document.getElementById('ytm-no-slop-controls')) return;
 
   const threeDots =
     document.querySelector('ytmusic-player-bar .middle-controls-buttons ytmusic-menu-renderer') ||
@@ -323,7 +323,7 @@ function injectButtons() {
 
   if (targetParent) {
     const container = document.createElement('div');
-    container.id = 'ytm-noslop-controls';
+    container.id = 'ytm-no-slop-controls';
     container.style.display = 'inline-flex';
     container.style.alignItems = 'center';
     container.style.marginLeft = '8px';

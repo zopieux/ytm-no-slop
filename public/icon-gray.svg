@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Musical Note (Beamed Eighth Notes) - Grayed -->
-  <path d="M33,70 L33,25 L73,15 L73,60" fill="none" stroke="#666" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-  <ellipse cx="25" cy="70" rx="12" ry="10" transform="rotate(-20 25 70)" fill="#666" />
-  <ellipse cx="65" cy="60" rx="12" ry="10" transform="rotate(-20 65 60)" fill="#666" />
-  <path d="M33,25 L73,15 L73,25 L33,35 Z" fill="#666" />
-</svg>

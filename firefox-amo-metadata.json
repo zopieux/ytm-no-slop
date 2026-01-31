@@ -1,0 +1,15 @@
+{
+  "summary": {
+    "en-US": "Block AI slop artists, songs or keywords on YouTube Music."
+  },
+  "description": {
+    "en-US": "Block AI slop artists, songs or keywords on YouTube Music."
+  },
+  "categories": ["photos-music-videos"],
+  "version": {
+    "license": "MIT"
+  },
+  "homepage": {
+    "en-US": "https://github.com/zopieux/ytm-no-slop"
+  }
+}

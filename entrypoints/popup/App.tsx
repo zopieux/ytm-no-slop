@@ -163,7 +163,7 @@ const App: Component = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'ytm-noslop-backup.json';
+    a.download = 'ytm-no-slop-backup.json';
     a.click();
   };
 

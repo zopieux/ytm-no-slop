@@ -20,11 +20,11 @@ const viteProcess = spawn(
   },
 );
 
-viteProcess.stderr.on('data', (data) => {
+viteProcess.stderr?.on('data', (data: Buffer) => {
   console.error(`Vite Error: ${data}`);
 });
 
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function run() {
   const url = 'http://localhost:3000';
@@ -55,7 +55,7 @@ async function run() {
 
   console.log('Launching browser...');
   const browser = await puppeteer.launch({
-    headless: 'new',
+    headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
   const page = await browser.newPage();
@@ -71,9 +71,11 @@ async function run() {
     process.exit(1);
   }
 
-  const themes = ['light', 'dark'];
-  const tabs = ['keywords', 'songs', 'artists', 'aidb', 'history'];
-  const tabSelectors = {
+  const themes = ['light', 'dark'] as const;
+  const tabs = ['keywords', 'songs', 'artists', 'aidb', 'history'] as const;
+  type Tab = (typeof tabs)[number];
+
+  const tabSelectors: Record<Tab, string> = {
     keywords: '.tabs .tab-btn:nth-child(1)',
     songs: '.tabs .tab-btn:nth-child(2)',
     artists: '.tabs .tab-btn:nth-child(3)',
@@ -99,9 +101,11 @@ async function run() {
       await wait(250);
 
       const body = await page.$('body');
-      await body.screenshot({
-        path: path.join(OUTPUT_DIR, `${theme}-${tab}.png`),
-      });
+      if (body) {
+        await body.screenshot({
+          path: path.join(OUTPUT_DIR, `${theme}-${tab}.png`),
+        });
+      }
     }
   }
 
@@ -113,7 +117,7 @@ async function run() {
     const images = tabs.map((tab) => path.join(OUTPUT_DIR, `${theme}-${tab}.png`));
     const concatFilePath = path.join(OUTPUT_DIR, `${theme}-concat.txt`);
 
-    const lines = [];
+    const lines: string[] = [];
     images.forEach((img) => {
       lines.push(`file '${img}'`);
       lines.push(`duration 2`);
@@ -122,7 +126,7 @@ async function run() {
     fs.writeFileSync(concatFilePath, lines.join('\n'));
     const outputGif = path.join(GITHUB_DIR, `${theme}-demo.gif`);
 
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       const ff = spawn('ffmpeg', [
         '-f',
         'concat',

@@ -16,7 +16,6 @@
           packages = with pkgs; [
             nodejs_20
             yarn
-            inkscape
             jq
             chromium
             ffmpeg

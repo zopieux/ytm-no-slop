@@ -1,8 +1,24 @@
 # YTM No Slop
 
-An open-source extension (Chrome, Firefox) for YouTube Music that blocks AI slop artists, songs or keywords.
+<img src=".github/icon.svg" align="right" width="128" height="128" />
 
-This extension works locally, with the exception of regularly downloading a database of AI slop artists, per [Acknowledgements](#acknowledgements).
+An open-source browser extension (Chrome, Firefox) for YouTube Music that blocks AI slop artists and songs.
+
+This extension works locally, with the exception of regularly downloading a crowd-sourced database of AI slop artists, per [Acknowledgements](#acknowledgements).
+
+## What does this extension do?
+
+The extension observes when a track starts playing on YouTube Music and checks if the artist or song title matches any entries in the local database of AI slop artists. If a match is found, the track is both disliked and skipped. Disliking is important to “train” the YouTube Music algorithm to play less of this type of music, such that it should hopefully stop adding it to your automatic playlists.
+
+In addition to the automatic, crowd-sourced database (“AI DB”), you can also add your own custom entries to the database via the extension's popup:
+
+- Keywords: matches song titles & artist names
+- Songs: matches song titles alone
+- Artists: matches artist names alone
+
+All skipped tracks are visible in the “History” tab.
+
+You can pause the auto-skipping by toggling the switch in the top-right corner of the popup.
 
 |                                        |                                      |
 | -------------------------------------- | ------------------------------------ |
