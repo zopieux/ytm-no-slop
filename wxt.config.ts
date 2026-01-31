@@ -15,10 +15,14 @@ export default defineConfig({
       '128': '/icon-128.png',
     },
     permissions: ['storage', 'alarms'],
-    host_permissions: ['https://music.youtube.com/*', 'https://raw.githubusercontent.com/*'],
+    host_permissions: [
+      'https://music.youtube.com/*',
+      'https://raw.githubusercontent.com/xoundbyte/soul-over-ai/*',
+    ],
     browser_specific_settings: {
       gecko: {
-        id: 'ytm-no-slop@zopieux.com',
+        id: 'ytm-no-slop@zopi.eu',
+        // @ts-expect-error TS2353: https://github.com/wxt-dev/wxt/issues/1975
         data_collection_permissions: {
           required: ['none'],
         },

@@ -44,12 +44,12 @@ export const BlockList: Component<BlockListProps> = (props) => {
           <div class="source-links">
             <a href="https://souloverai.com" target="_blank">
               Soul Over AI
-            </a>{' '}
-            ⋅
+            </a>
+            <span class="sep">·</span>
             <a href="https://github.com/xoundbyte/soul-over-ai" target="_blank">
               GitHub
-            </a>{' '}
-            ⋅
+            </a>
+            <span class="sep">·</span>
             <a href="https://souloverai.com/add" target="_blank">
               Suggest new addition
             </a>
