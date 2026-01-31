@@ -29,7 +29,7 @@ export default defineBackground(() => {
   let isAutoSkipEnabled = true;
 
   async function updateBlockList() {
-    console.log('Updating Block List in Background');
+    console.debug('Updating Block List in Background');
     blockedKeywords = (await storage.getItem<string[]>(STORAGE_KEY_KEYWORDS)) || [];
     blockedSongs = (await storage.getItem<BlockedSong[]>(STORAGE_KEY_SONGS)) || [];
     const localArtists = (await storage.getItem<BlockedArtist[]>(STORAGE_KEY_ARTISTS)) || [];
@@ -109,7 +109,7 @@ export default defineBackground(() => {
   async function fetchAndCacheRemote(): Promise<Set<string>> {
     const remoteIdsSet = new Set<string>();
     try {
-      console.log('Fetching remote AI DB...');
+      console.debug('Fetching remote AI DB...');
       const response = await fetch(GITHUB_URL + `?t=${Date.now()}`); // busting cache
       if (response.ok) {
         const data = await response.json();
@@ -126,7 +126,7 @@ export default defineBackground(() => {
 
         await storage.setItem(STORAGE_KEY_AI_DB, toCache);
         await storage.setItem(STORAGE_KEY_AI_DB_TIMESTAMP, Date.now());
-        console.log(`Fetched and cached ${toCache.length} artists from AI DB`);
+        console.debug(`Fetched and cached ${toCache.length} artists from AI DB`);
 
         const localArtists = (await storage.getItem<BlockedArtist[]>(STORAGE_KEY_ARTISTS)) || [];
         const originalCount = localArtists.length;
@@ -301,7 +301,7 @@ export default defineBackground(() => {
 
   browser.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === 'update-ai-db') {
-      console.log('Alarm triggered, checking ai db...');
+      console.debug('Alarm triggered, checking ai db...');
       updateBlockList();
     }
   });

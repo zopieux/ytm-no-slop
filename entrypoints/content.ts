@@ -140,7 +140,7 @@ function skipSong(expectedTitle?: string) {
   if (expectedTitle) {
     const info = getSongInfo();
     if (!info || info.title !== expectedTitle) {
-      console.log(
+      console.debug(
         `[YTM No Slop] Aborting skip: title mismatch. Expected "${expectedTitle}", found "${info?.title}"`,
       );
       return;
@@ -208,7 +208,7 @@ function performDownvoteAndSkip(songTitle: string, artistName: string, reason: s
   // Verify song before clicking dislike
   const info = getSongInfo();
   if (!info || info.title !== songTitle) {
-    console.log('[YTM No Slop] Aborting dislike: Song changed.');
+    console.debug('[YTM No Slop] Aborting dislike: Song changed.');
     return;
   }
 
