@@ -19,7 +19,7 @@ export interface HistoryItem {
   title: string;
   artist: string;
   timestamp: number;
-  reason: string;
+  reason: SkipReason;
 }
 
 export type BlockList = (string | BlockedSong | BlockedArtist | HistoryItem)[];
@@ -38,11 +38,39 @@ export interface CheckSongRequest {
   title: string;
   artistName: string;
   artistId: string | null;
+  canonicalArtistId: string | null;
 }
 
+export enum SkipSource {
+  BLOCKLIST = 'blocklist',
+  MANUAL = 'manual',
+}
+
+export interface MatchedKeyword {
+  type: 'matched_keyword';
+  keyword: string;
+  source: SkipSource.BLOCKLIST; // Can't be manual.
+}
+
+export interface MatchedArtist {
+  type: 'matched_artist';
+  artistName: string;
+  artistId?: string;
+  canonicalArtistId?: string;
+  source: SkipSource;
+}
+
+export interface MatchedSong {
+  type: 'matched_song';
+  title: string;
+  artistName: string;
+  source: SkipSource;
+}
+
+export type SkipReason = MatchedKeyword | MatchedArtist | MatchedSong;
+
 export interface CheckSongResponse {
-  shouldSkip: boolean;
-  reason: string;
+  reason?: SkipReason;
 }
 
 export interface BlockArtistRequest {

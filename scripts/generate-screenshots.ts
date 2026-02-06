@@ -41,7 +41,7 @@ async function run() {
         break;
       }
     } catch {
-      // ignore
+      // Ignore.
     }
     process.stdout.write('.');
     await wait(200);

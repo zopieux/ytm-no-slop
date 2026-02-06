@@ -6,16 +6,16 @@ interface IconProps {
 }
 
 const IconWrapper: Component<IconProps> = (props) => (
-  <svg 
-    width="14" 
-    height="14" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
-    style={{ "vertical-align": "middle", "margin-right": props.noMargin ? "0" : "4px" }}
+    style={{ 'vertical-align': 'middle', 'margin-right': props.noMargin ? '0' : '4px' }}
   >
     {props.children}
   </svg>
@@ -59,19 +59,27 @@ export const BanIcon: Component = () => (
 );
 
 export const ExternalIcon: Component = () => (
-  <svg 
-    width="10" 
-    height="10" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
+  <svg
+    width="10"
+    height="10"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
     stroke-linejoin="round"
-    style={{ "vertical-align": "middle", "margin-left": "4px" }}
+    style={{ 'vertical-align': 'middle', 'margin-left': '4px' }}
   >
     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
     <polyline points="15 3 21 3 21 9" />
     <line x1="10" y1="14" x2="21" y2="3" />
   </svg>
+);
+
+export const ClearIcon: Component = () => (
+  <IconWrapper>
+    <path d="M3 6h18" />
+    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+  </IconWrapper>
 );

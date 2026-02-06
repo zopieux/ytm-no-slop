@@ -22,7 +22,7 @@ import {
   MessageType,
   BlockList as BlockListType,
 } from '@/utils/types';
-import { ExportIcon, ImportIcon } from './components/Icons';
+import { ExportIcon, ImportIcon, ClearIcon } from './components/Icons';
 import {
   TAB_KEYWORDS,
   TAB_SONGS,
@@ -87,7 +87,7 @@ const App: Component = () => {
 
     const sorted = [...data];
 
-    // History should not be sorted alphabetically, it is already sorted by recency (storage)
+    // History should not be sorted alphabetically, it is already sorted by recency (storage).
     if (tab !== TAB_HISTORY) {
       sorted.sort((a, b) => {
         const textA = getDisplayText(a).toLowerCase();
@@ -202,6 +202,20 @@ const App: Component = () => {
     await storage.setItem(STORAGE_KEY_AUTO_SKIP, newVal);
   };
 
+  const [confirmClear, setConfirmClear] = createSignal(false);
+
+  const handleClearHistory = async () => {
+    if (!confirmClear()) {
+      setConfirmClear(true);
+      setTimeout(() => setConfirmClear(false), 3000);
+      return;
+    }
+
+    await storage.setItem(STORAGE_KEY_HISTORY, []);
+    setStore(TAB_HISTORY, []);
+    setConfirmClear(false);
+  };
+
   createEffect(
     on(
       currentTab,
@@ -280,14 +294,35 @@ const App: Component = () => {
         </Show>
       </div>
 
-      <div class="actions">
-        <button class="action-btn" onClick={handleExport}>
-          <ExportIcon /> Export JSON
-        </button>
-        <button class="action-btn" onClick={handleImport}>
-          <ImportIcon /> Import JSON
-        </button>
-      </div>
+      <Show
+        when={
+          currentTab() === TAB_KEYWORDS ||
+          currentTab() === TAB_SONGS ||
+          currentTab() === TAB_ARTISTS
+        }
+      >
+        <div class="actions">
+          <button class="action-btn" onClick={handleExport}>
+            <ExportIcon /> Export JSON
+          </button>
+          <button class="action-btn" onClick={handleImport}>
+            <ImportIcon /> Import JSON
+          </button>
+        </div>
+      </Show>
+
+      <Show when={currentTab() === TAB_HISTORY}>
+        <div class="actions">
+          <button
+            class="action-btn"
+            classList={{ danger: confirmClear() }}
+            onClick={handleClearHistory}
+            disabled={store[TAB_HISTORY].length === 0}
+          >
+            <ClearIcon /> {confirmClear() ? 'Are you sure?' : 'Clear History'}
+          </button>
+        </div>
+      </Show>
     </>
   );
 };

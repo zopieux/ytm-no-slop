@@ -21,4 +21,4 @@ export const STORAGE_KEY_AI_DB_TIMESTAMP = 'local:aiDbTimestamp';
 export const STORAGE_KEY_AUTO_SKIP = 'sync:autoSkip';
 export const STORAGE_KEY_HISTORY = 'local:history';
 
-export const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+export const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours.

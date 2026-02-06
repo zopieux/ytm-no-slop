@@ -5,8 +5,16 @@ import {
   BlockSongRequest,
   MessageType,
   HistoryItem,
+  SkipSource,
 } from '@/utils/types';
 import { STORAGE_KEY_AUTO_SKIP, STORAGE_KEY_HISTORY, HISTORY_LIMIT } from '@/utils/constants';
+
+type SongInfo = {
+  title: string;
+  artistName: string;
+  artistId: string | null;
+  canonicalArtistId: string | null;
+};
 
 let lastCheckedIdentifier = '';
 
@@ -22,7 +30,58 @@ function simulateClick(element: Element) {
   });
 }
 
-function getSongInfo(): { title: string; artistName: string; artistId: string | null } | null {
+function extractCarouselArtistIds(data: any): Set<string> {
+  const artistIds = new Set<string>();
+  function traverse(obj: any) {
+    if (!obj || typeof obj !== 'object') return;
+    if (obj.musicCarouselShelfRenderer) {
+      const shelfContents = obj.musicCarouselShelfRenderer.contents || [];
+      shelfContents.forEach((item: any) => {
+        const subtitleRuns = item.musicTwoRowItemRenderer?.subtitle?.runs;
+        if (Array.isArray(subtitleRuns)) {
+          subtitleRuns.forEach((run: any) => {
+            const bId = run.navigationEndpoint?.browseEndpoint?.browseId;
+            if (bId && bId.startsWith('UC')) {
+              artistIds.add(bId);
+            }
+          });
+        }
+      });
+    }
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        traverse(obj[key]);
+      }
+    }
+  }
+  traverse(data);
+  return artistIds;
+}
+
+async function maybeGetCanonicalArtistId(artistId: string): Promise<string | null> {
+  const ytcfg = (window as any).wrappedJSObject.ytcfg;
+  const apiKey = ytcfg.get('INNERTUBE_API_KEY');
+  const context = ytcfg.get('INNERTUBE_CONTEXT');
+  const response = await fetch(`https://music.youtube.com/youtubei/v1/browse?key=${apiKey}`, {
+    method: 'POST',
+    body: JSON.stringify({
+      context,
+      browseId: artistId,
+    }),
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const data = await response.json();
+  const ids = extractCarouselArtistIds(data);
+  // Remove self.
+  ids.delete(artistId);
+  // Avoid false positives.
+  if (ids.size === 1) {
+    return ids.values().next().value as string;
+  }
+  return null;
+}
+
+function getSongInfo(): SongInfo | null {
   const titleEl = document.querySelector('ytmusic-player-bar .title');
   const bylineEl = document.querySelector('ytmusic-player-bar .byline');
 
@@ -54,7 +113,7 @@ function getSongInfo(): { title: string; artistName: string; artistId: string | 
     }
   }
 
-  return { title, artistName, artistId };
+  return { title, artistName, artistId, canonicalArtistId: null };
 }
 
 function injectToastStyles() {
@@ -151,7 +210,7 @@ function skipSong(expectedTitle?: string) {
   if (nextBtn) simulateClick(nextBtn);
 
   setTimeout(() => {
-    // Double check we're still on the same song before nuclear option (seek to end)
+    // Double check we're still on the same song before nuclear option (seek to end).
     if (expectedTitle) {
       const info = getSongInfo();
       if (!info || info.title !== expectedTitle) return;
@@ -162,7 +221,7 @@ function skipSong(expectedTitle?: string) {
   }, 500);
 }
 
-function addToHistory(title: string, artist: string, reason: string) {
+function addToHistory(title: string, artist: string, reason: SkipReason) {
   storage.getItem<HistoryItem[]>(STORAGE_KEY_HISTORY).then((history) => {
     const newHistory = history || [];
     newHistory.unshift({
@@ -180,8 +239,22 @@ function addToHistory(title: string, artist: string, reason: string) {
   });
 }
 
-function performDownvoteAndSkip(songTitle: string, artistName: string, reason: string) {
-  showToast(`Skipped “${songTitle}“`, reason);
+function formatReason(reason: SkipReason): string {
+  const manually = reason.source === SkipSource.MANUAL ? ' (manually)' : '';
+  switch (reason.type) {
+    case 'matched_keyword':
+      return `Blocked keyword “${reason.keyword}”`;
+    case 'matched_song':
+      return `Blocked song “${reason.title}”${manually}`;
+    case 'matched_artist':
+      return `Blocked artist “${reason.artistName}${manually}”`;
+    default:
+      return `Blocked`;
+  }
+}
+
+function performDownvoteAndSkip(songTitle: string, artistName: string, reason: SkipReason) {
+  showToast(`Skipped “${songTitle}“`, formatReason(reason));
 
   addToHistory(songTitle, artistName, reason);
 
@@ -199,13 +272,13 @@ function performDownvoteAndSkip(songTitle: string, artistName: string, reason: s
     dislikeWrapper.getAttribute('aria-pressed') === 'true' ||
     actualBtn.getAttribute('aria-pressed') === 'true';
 
-  // If already disliked, we just need to skip manually since it's still playing
+  // If already disliked, we just need to skip manually since it's still playing.
   if (isPressed) {
     skipSong(songTitle);
     return;
   }
 
-  // Verify song before clicking dislike
+  // Verify song before clicking dislike.
   const info = getSongInfo();
   if (!info || info.title !== songTitle) {
     console.debug('[YTM No Slop] Aborting dislike: Song changed.');
@@ -234,7 +307,7 @@ function performDownvoteAndSkip(songTitle: string, artistName: string, reason: s
           }
         }, 1000);
       } else {
-        // Dislike failed to register, force skip
+        // Dislike failed to register, force skip.
         skipSong(songTitle);
       }
     }
@@ -252,22 +325,31 @@ async function checkAndSkip() {
   if (identifier === lastCheckedIdentifier) return;
   lastCheckedIdentifier = identifier;
 
+  if (song.artistId) {
+    const canonicalArtistId = await maybeGetCanonicalArtistId(song.artistId);
+    if (canonicalArtistId) {
+      song.canonicalArtistId = canonicalArtistId;
+    }
+  }
+
   try {
     const request = {
       type: MessageType.CHECK_SONG,
       title: song.title,
       artistName: song.artistName,
       artistId: song.artistId,
+      canonicalArtistId: song.canonicalArtistId,
     } as CheckSongRequest;
     const response: CheckSongResponse = await browser.runtime.sendMessage(request);
-    if (response.shouldSkip) {
+    if (response.reason) {
       // If we actually skipped it, we record the title to prevent re-skipping
-      // the next one if it has the same title but different metadata (unlikely but safe)
+      // the next one if it has the same title but different metadata (unlikely
+      // but safe).
       performDownvoteAndSkip(song.title, song.artistName, response.reason);
     }
   } catch (e) {
     console.error('RPC Failed', e);
-    // Reset identifier on failure so we can retry
+    // Reset identifier on failure so we can retry.
     lastCheckedIdentifier = '';
   }
 }
@@ -332,7 +414,7 @@ function injectButtons() {
       createButton('Artist', async () => {
         const song = getSongInfo();
         if (song && song.artistId) {
-          // Cleaner name check
+          // Cleaner name check.
           const bylineEl = document.querySelector('ytmusic-player-bar .byline');
           let cleanName = song.artistName;
           if (bylineEl) {
@@ -346,7 +428,13 @@ function injectButtons() {
             artistName: cleanName,
           } as BlockArtistRequest);
 
-          performDownvoteAndSkip(song.title, song.artistName, 'Manual artist block');
+          performDownvoteAndSkip(song.title, song.artistName, {
+            type: 'matched_artist',
+            artistName: cleanName,
+            artistId: song.artistId ?? undefined,
+            canonicalArtistId: song.canonicalArtistId ?? undefined,
+            source: SkipSource.MANUAL,
+          });
         } else {
           console.warn('[YTM No Slop] No Artist ID found to block.');
         }
@@ -363,7 +451,12 @@ function injectButtons() {
             artistName: song.artistName,
           } as BlockSongRequest);
 
-          performDownvoteAndSkip(song.title, song.artistName, 'Manual song block');
+          performDownvoteAndSkip(song.title, song.artistName, {
+            type: 'matched_song',
+            title: song.title,
+            artistName: song.artistName,
+            source: SkipSource.MANUAL,
+          });
         }
       }),
     );

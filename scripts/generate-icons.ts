@@ -5,19 +5,19 @@ import path from 'path';
 const SIZES = [16, 32, 48, 96, 128];
 const INPUT_FILE = path.resolve('public/icon.svg');
 
-// Colors
+// Colors.
 const ACCENT_COLOR = '#ff4444';
 const LIGHT_FILL = '#202124'; // Light theme fill.
 const DARK_FILL = '#f8f9fa'; // Dark theme fill.
 const GRAY_FILL = '#808080'; // Disabled.
 
 interface IconVariant {
-  name: string; // Base name for output file, e.g., 'icon', 'icon-dark'
+  name: string; // Base name for output file, e.g., 'icon', 'icon-dark'.
   stylesheet: string;
 }
 
 const VARIANTS: IconVariant[] = [
-  // Normal Light
+  // Normal Light.
   {
     name: 'icon-light',
     stylesheet: `
@@ -25,7 +25,7 @@ const VARIANTS: IconVariant[] = [
       #note { fill: ${ACCENT_COLOR}; }
     `,
   },
-  // Normal Dark
+  // Normal Dark.
   {
     name: 'icon-dark',
     stylesheet: `
@@ -33,7 +33,7 @@ const VARIANTS: IconVariant[] = [
       #note { fill: ${ACCENT_COLOR}; }
     `,
   },
-  // Disabled (Grayscale)
+  // Disabled (Grayscale).
   {
     name: 'icon-gray',
     stylesheet: `
@@ -41,7 +41,7 @@ const VARIANTS: IconVariant[] = [
       #note { fill: ${GRAY_FILL}; }
     `,
   },
-  // Empty Light
+  // Empty Light.
   {
     name: 'icon-empty-light',
     stylesheet: `
@@ -49,7 +49,7 @@ const VARIANTS: IconVariant[] = [
       #note { display: none; }
     `,
   },
-  // Empty Dark
+  // Empty Dark.
   {
     name: 'icon-empty-dark',
     stylesheet: `

@@ -5,6 +5,7 @@ import {
   CheckSongResponse,
   MessageType,
   BlockList,
+  SkipSource,
 } from '@/utils/types';
 import {
   STORAGE_KEY_AUTO_SKIP,
@@ -73,7 +74,7 @@ export default defineBackground(() => {
         }
       }
     } catch {
-      // Fallback or not Firefox
+      // Fallback or not Firefox.
     }
     return 'light';
   }
@@ -110,7 +111,7 @@ export default defineBackground(() => {
     const remoteIdsSet = new Set<string>();
     try {
       console.debug('Fetching remote AI DB...');
-      const response = await fetch(GITHUB_URL + `?t=${Date.now()}`); // busting cache
+      const response = await fetch(GITHUB_URL + `?t=${Date.now()}`); // Busting cache.
       if (response.ok) {
         const data = await response.json();
         const toCache: BlockedArtist[] = [];
@@ -158,21 +159,39 @@ export default defineBackground(() => {
     title: string,
     artistName: string,
     artistId: string | null,
+    canonicalArtistId: string | null,
   ): CheckSongResponse {
     if (!isAutoSkipEnabled) {
-      return { shouldSkip: false, reason: '' };
+      return {};
     }
 
     if (artistId && blockedArtistIds.has(artistId)) {
       blinkIcon();
-      return { shouldSkip: true, reason: `Matched artist “${artistName}”` };
+      return {
+        reason: { type: 'matched_artist', artistName, artistId, source: SkipSource.BLOCKLIST },
+      };
+    }
+
+    if (artistId && canonicalArtistId && blockedArtistIds.has(canonicalArtistId)) {
+      blinkIcon();
+      return {
+        reason: {
+          type: 'matched_artist',
+          artistName,
+          artistId,
+          canonicalArtistId,
+          source: SkipSource.BLOCKLIST,
+        },
+      };
     }
 
     const checkString = normalize(artistName + ' ' + title);
     const matchedKeyword = blockedKeywords.find((term) => checkString.includes(normalize(term)));
     if (matchedKeyword) {
       blinkIcon();
-      return { shouldSkip: true, reason: `Matched keyword “${matchedKeyword}”` };
+      return {
+        reason: { type: 'matched_keyword', keyword: matchedKeyword, source: SkipSource.BLOCKLIST },
+      };
     }
 
     const matchedSong = blockedSongs.find(
@@ -182,15 +201,15 @@ export default defineBackground(() => {
     );
     if (matchedSong) {
       blinkIcon();
-      return { shouldSkip: true, reason: `Matched song “${matchedSong.title}”` };
+      return { reason: { type: 'matched_song', title, artistName, source: SkipSource.BLOCKLIST } };
     }
 
     if (blockedArtistNames.has(normalize(artistName))) {
       blinkIcon();
-      return { shouldSkip: true, reason: `Matched artist name “${artistName}”` };
+      return { reason: { type: 'matched_artist', artistName, source: SkipSource.BLOCKLIST } };
     }
 
-    return { shouldSkip: false, reason: '' };
+    return {};
   }
 
   const getDisplayText = (item: string | BlockedSong | BlockedArtist) => {
@@ -206,7 +225,7 @@ export default defineBackground(() => {
       const msg = message as Message;
       switch (msg.type) {
         case MessageType.CHECK_SONG:
-          return checkSong(msg.title, msg.artistName, msg.artistId);
+          return checkSong(msg.title, msg.artistName, msg.artistId, msg.canonicalArtistId);
 
         case MessageType.REFRESH_AI_DB:
           await fetchAndCacheRemote();
@@ -270,7 +289,7 @@ export default defineBackground(() => {
     };
 
     handle().then(sendResponse);
-    return true; // Keep channel open
+    return true; // Keep channel open.
   });
 
   (async () => {

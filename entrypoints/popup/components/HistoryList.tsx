@@ -1,5 +1,5 @@
 import { Component, For, Show, createSignal, onCleanup } from 'solid-js';
-import { HistoryItem } from '@/utils/types';
+import { HistoryItem, SkipReason, SkipSource } from '@/utils/types';
 import { HISTORY_LIMIT } from '@/utils/constants';
 
 interface HistoryListProps {
@@ -23,6 +23,28 @@ const formatTimeAgo = (timestamp: number, current: number) => {
 const getSkipCount = (items: HistoryItem[], currentItem: HistoryItem) => {
   const key = `${currentItem.title}|${currentItem.artist}`;
   return items.filter((i) => `${i.title}|${i.artist}` === key).length;
+};
+
+const formatVerboseReason = (reason: SkipReason | string): string => {
+  // Backward compatibility with the old format.
+  if (typeof reason === 'string') {
+    return reason;
+  }
+  const manually = reason.source === SkipSource.MANUAL ? ' (manually)' : '';
+  switch (reason.type) {
+    case 'matched_keyword':
+      return `Blocked by keyword “${reason.keyword}”`;
+    case 'matched_song':
+      return `Blocked by song title “${reason.title}”${manually}`;
+    case 'matched_artist':
+      if (reason.artistId && reason.canonicalArtistId) {
+        return `Blocked by artist “${reason.artistName}”${manually} (ID: ${reason.artistId}, canonical ID: ${reason.canonicalArtistId})`;
+      } else if (reason.artistId) {
+        return `Blocked by artist “${reason.artistName}”${manually} (ID: ${reason.artistId})`;
+      } else {
+        return `Blocked by artist “${reason.artistName}”${manually}`;
+      }
+  }
 };
 
 export const HistoryList: Component<HistoryListProps> = (props) => {
@@ -54,7 +76,7 @@ export const HistoryList: Component<HistoryListProps> = (props) => {
                   <div class="col-when" title={new Date(item.timestamp).toLocaleString()}>
                     {formatTimeAgo(item.timestamp, now())}
                   </div>
-                  <div class="col-title" title={item.reason}>
+                  <div class="col-title" title={formatVerboseReason(item.reason)}>
                     {item.title} <span class="artist-dim">⋅ {item.artist}</span>
                   </div>
                   <div class="col-times">
